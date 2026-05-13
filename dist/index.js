@@ -19392,6 +19392,13 @@ var parseArray = (commaDelimitedString) => {
   }
   return void 0;
 };
+var parseLines = (newlineDelimitedString) => {
+  if (newlineDelimitedString) {
+    const entries = newlineDelimitedString.split("\n").map((value) => value.trim()).filter(Boolean);
+    return entries.length ? entries : void 0;
+  }
+  return void 0;
+};
 var cpOptions = {
   maxBuffer: 50 * 1024 * 1024,
   stdio: "inherit"
@@ -19475,10 +19482,12 @@ var createBuildCommand = (imageName, dockerfile, buildOpts2) => {
     buildCommandPrefix = `${buildCommandPrefix} ${secretsSuffix}`;
   }
   if (buildOpts2.cacheFrom) {
-    buildCommandPrefix = `${buildCommandPrefix} --cache-from ${buildOpts2.cacheFrom}`;
+    const cacheFromSuffix = buildOpts2.cacheFrom.map((ref) => `--cache-from ${ref}`).join(" ");
+    buildCommandPrefix = `${buildCommandPrefix} ${cacheFromSuffix}`;
   }
   if (buildOpts2.cacheTo) {
-    buildCommandPrefix = `${buildCommandPrefix} --cache-to ${buildOpts2.cacheTo}`;
+    const cacheToSuffix = buildOpts2.cacheTo.map((ref) => `--cache-to ${ref}`).join(" ");
+    buildCommandPrefix = `${buildCommandPrefix} ${cacheToSuffix}`;
   }
   if (buildOpts2.enableBuildKit) {
     buildCommandPrefix = `DOCKER_BUILDKIT=1 ${buildCommandPrefix}`;
@@ -19569,8 +19578,8 @@ var setBuildOpts = (addLatest, addTimestamp) => {
   buildOpts.skipPush = getInput("pushImage") === "false";
   buildOpts.ssh = parseArray(getInput("ssh"));
   buildOpts.secrets = parseArray(getInput("secrets"));
-  buildOpts.cacheFrom = getInput("cacheFrom");
-  buildOpts.cacheTo = getInput("cacheTo");
+  buildOpts.cacheFrom = parseLines(getInput("cacheFrom"));
+  buildOpts.cacheTo = parseLines(getInput("cacheTo"));
 };
 var run = () => {
   try {
