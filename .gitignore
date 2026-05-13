@@ -72,3 +72,6 @@ allure-results
 
 # husky
 .husky
+
+# Claude Code
+.claude
